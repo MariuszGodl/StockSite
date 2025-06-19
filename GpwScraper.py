@@ -1,3 +1,5 @@
+import time
+
 from Scraper import StockScraper
 from Other.imports import *
 from Other.constants import *
@@ -52,13 +54,7 @@ class GpwScraper(StockScraper):
             self.driver.get(site)
             wait = WebDriverWait(self.driver, self.config['wait_time'])
 
-            if cookie_accept:
-                try:
-                    # Wait for the cookie accept button to appear (adjust selector!)
-                    cookie_button = wait.until(EC.element_to_be_clickable((By.ID, "onetrust-accept-btn-handler")))
-                    cookie_button.click()
-                except (TimeoutException, NoSuchElementException):
-                    print("No cookie banner found or already accepted")
+
 
             try:
                 # Wait for the ability to download the file
@@ -132,6 +128,47 @@ class GpwScraper(StockScraper):
                     time.sleep(self.config['wait_between_requests'])
                     cookie_accept = False
                 wait = self.get_data(current_date, cookie_accept=cookie_accept)
+
+        self.driver.quit()
+        pass
+
+    def scrape_basic_info_bankier(self, box_name, searched_info):
+        box = self.driver.find_element(By.ID, box_name)
+        # Inside that container, find the <td> with text 'Sektor:'
+        label = box.find_element(By.XPATH, f'.//td[contains(text(),"{searched_info}:")]')
+        # Get the next sibling <td> which contains the sector text
+        searched = label.find_element(By.XPATH, "following-sibling::td").text
+        return searched.upper()
+
+    def get_companies_info(self, companies):
+        """
+        Fetches information about a specific company listed on the GPW.
+        :param companies: The names of the companies for which information is to be fetched.
+        """
+        self.driver = webdriver.Chrome(service=self.service, options=self.options)
+
+        cookie_accept = True
+
+        for company in companies:
+            site = self.config['url_company_info'].format(company=company)
+            self.driver.get(site)
+            wait = WebDriverWait(self.driver, self.config['wait_time'])
+
+            # TODO cookie accept
+            if cookie_accept:
+                try:
+                    # Wait for the cookie accept button to appear (adjust selector!)
+                    cookie_button = wait.until(EC.element_to_be_clickable((By.ID, "onetrust-accept-btn-handler")))
+                    cookie_button.click()
+                except (TimeoutException, NoSuchElementException):
+                    print("No cookie banner found or already accepted")
+
+            cookie_accept = False
+            company_sector = self.scrape_basic_info_bankier("boxBasicData", "Sektor")
+            company_city = self.scrape_basic_info_bankier("boxAddressData", "Miejscowość")
+            company_country = self.scrape_basic_info_bankier("boxAddressData", "Kraj")
+            print(f"Company: {company}, Sector: {company_sector}, City: {company_city}, Country: {company_country}")
+            # TODO save the data to a database
 
         self.driver.quit()
         pass

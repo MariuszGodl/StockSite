@@ -2,11 +2,14 @@
   "initial_date": "1993-02-01" ,
   "downloads_path": "StockData/GPW",
   "driver_path": "Other/chromedriver.exe",
-  "Full_url" : "https://www.gpw.pl/archiwum-notowan?fetch=0&type=10&instrument=&date=11-06-2025&show_x=Poka%C5%BC+wyniki",
+  "FULL_URL_GPW_ARCHIVE" : "https://www.gpw.pl/archiwum-notowan?fetch=0&type=10&instrument=&date=11-06-2025&show_x=Poka%C5%BC+wyniki",
   "url_template": "https://www.gpw.pl/archiwum-notowan?fetch=0&type=10&instrument=&date={date}&show_x=Poka%C5%BC+wyniki",
   "file_prefix": "_",
   "file_suffix": "_akcje.xls",
+  "FULL_URL_TO_COMPANIES_INFO": "https://www.bankier.pl/gielda/notowania/akcje/06MAGNA/podstawowe-dane",
+  "url_company_info": "https://www.bankier.pl/gielda/notowania/akcje/{company}/podstawowe-dane",
   "error_file_path": "ErrorLogs/GpwErrors.log",
   "wait_time": 5,
   "wait_between_requests": 30
+
 }

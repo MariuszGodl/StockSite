@@ -42,6 +42,16 @@ class StockScraper(ABC):
         """
         pass
 
+    @abstractmethod
+    def get_companies_info(self, companies):
+        """
+        Abstract method to get information about a specific company.
+        Must be implemented by subclasses.
+
+        :param companies: The names of the companies for which information is to be fetched.
+        """
+        pass
+
     @staticmethod
     def wait_until_file_downloaded(file_path, error_file_path, timeout=30):
         """
