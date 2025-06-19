@@ -24,7 +24,7 @@ class StockScraper(ABC):
         pass
 
     @abstractmethod
-    def get_today_prices(self):
+    def get_yesterday_prices(self):
         """
         Abstract method to get today's prices for the companies.
         Must be implemented by subclasses.
@@ -62,7 +62,7 @@ class StockScraper(ABC):
 
         # If the file is not found after the timeout
         with open(error_file_path, 'a') as error_file:
-            error_file.write(f"At time {datetime.now()} File {file_path} not found after waiting {timeout} seconds.\n")
+            error_file.write(f"At time {datetime.datetime.now()} File {file_path} not found after waiting {timeout} seconds.\n")
         print(f"File {file_path} not found in the download directory after waiting {timeout} seconds.")
         return False
 

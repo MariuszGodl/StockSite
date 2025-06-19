@@ -8,8 +8,9 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 
-from datetime import datetime
+import datetime
 import time
+from datetime import timedelta
 
 import os
 import json

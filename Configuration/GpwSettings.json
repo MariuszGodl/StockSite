@@ -1,5 +1,5 @@
 {
-  "initial_date": "01-02-1993" ,
+  "initial_date": "1993-02-01" ,
   "downloads_path": "StockData/GPW",
   "driver_path": "Other/chromedriver.exe",
   "Full_url" : "https://www.gpw.pl/archiwum-notowan?fetch=0&type=10&instrument=&date=11-06-2025&show_x=Poka%C5%BC+wyniki",
@@ -7,5 +7,6 @@
   "file_prefix": "_",
   "file_suffix": "_akcje.xls",
   "error_file_path": "ErrorLogs/GpwErrors.log",
-  "wait_time": 5
+  "wait_time": 5,
+  "wait_between_requests": 30
 }

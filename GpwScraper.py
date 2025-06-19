@@ -1,5 +1,3 @@
-import os
-
 from Scraper import StockScraper
 from Other.imports import *
 from Other.constants import *
@@ -35,46 +33,55 @@ class GpwScraper(StockScraper):
             "safebrowsing.enabled": True
         })
         self.service = Service(DRIVER_PATH)
-        self.driver = webdriver.Chrome(service=self.service, options=self.options)
 
-    def get_data(self, date):
+    def get_data(self, date, cookie_accept=True, remove_if_exist=False):
         """
         Fetches data for a given date from GPW.
 
         :param date: The date for which data is to be fetched in 'DD-MM-YYYY' format.
+        :param cookie_accept: If True, accepts cookies on the website.
+        :param remove_if_exist: If True, removes the file if it already exists before downloading.
         """
-        date_reversed = date.strftime('%Y-%m-%d')
-        site = self.__url_template.format(date=date_reversed)
-        self.driver.get(site)
-        wait = WebDriverWait(self.driver, self.config['wait_time'])
         file_name = self.config['file_prefix'] + str(date) + self.config['file_suffix']
         file_path = os.path.join(self.__downloads_path, file_name)
 
-        try:
-            # Wait for the cookie accept button to appear (adjust selector!)
-            cookie_button = wait.until(EC.element_to_be_clickable((By.ID, "onetrust-accept-btn-handler")))
-            cookie_button.click()
-        except (TimeoutException, NoSuchElementException):
-            print("No cookie banner found or already accepted")
+        if not self.check_if_file_exists(file_path, remove=False) or remove_if_exist:
 
-        try:
-            # Wait for the ability to download the file
-            file_download = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "a.btn.btn-icon")))
-            file_download.click()
-        except (TimeoutException, NoSuchElementException):
-            print("File from " + date + " no option to download")
-            with open(self.error_file_path, 'a') as error_file:
-                error_file.write(
-                    f"At time {datetime.now()} option to download {str(date)} not found after waiting {self.config['wait_time']} seconds.\n")
+            date_reversed = date.strftime('%Y-%m-%d')
+            site = self.__url_template.format(date=date_reversed)
+            self.driver.get(site)
+            wait = WebDriverWait(self.driver, self.config['wait_time'])
 
-        print(f"Expected file path: {file_path}")
+            if cookie_accept:
+                try:
+                    # Wait for the cookie accept button to appear (adjust selector!)
+                    cookie_button = wait.until(EC.element_to_be_clickable((By.ID, "onetrust-accept-btn-handler")))
+                    cookie_button.click()
+                except (TimeoutException, NoSuchElementException):
+                    print("No cookie banner found or already accepted")
 
-        # Check if the file already exists and remove it if necessary
-        self.check_if_file_exists(file_path, remove=True)
+            try:
+                # Wait for the ability to download the file
+                file_download = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "a.btn.btn-icon")))
+                file_download.click()
+            except (TimeoutException, NoSuchElementException):
+                print("File from " + date + " no option to download")
+                with open(self.error_file_path, 'a') as error_file:
+                    error_file.write(
+                        f"At time {datetime.datetime.now()} option to download {str(date)} not found after waiting "
+                        f"{self.config['wait_time']} seconds.\n")
 
-        # Wait until the file is downloaded
-        self.wait_until_file_downloaded(file_path, self.error_file_path, timeout=30)
+            print(f"Expected file path: {file_path}")
 
+            # Check if the file already exists and remove it if necessary
+            self.check_if_file_exists(file_path, remove=True)
+
+            # Wait until the file is downloaded
+            self.wait_until_file_downloaded(file_path, self.error_file_path, timeout=TIME_TO_DOWNLOAD)
+
+            return True
+
+        return False  # File already exists, no need to download again
         pass
 
     def get_companies(self):
@@ -82,21 +89,49 @@ class GpwScraper(StockScraper):
         Fetches a list of companies listed on the GPW.
         """
         # Implementation goes here
+        # Request to the database
+        # Returns a tuple with (ID, name, starting date)
         pass
 
-    def get_today_prices(self):
+    def get_yesterday_prices(self):
         """
         Fetches today's prices for the companies listed on the GPW.
         """
-        # Implementation goes here
+        self.driver = webdriver.Chrome(service=self.service, options=self.options)
+        yesterday_date = datetime.datetime.now().date() - timedelta(days=1)
+        self.get_data(yesterday_date)
+        self.driver.quit()
         pass
 
-    def get_historical_prices(self, start_date, end_date):
+    def get_historical_prices(self, start_date=None, end_date=None):
         """
         Fetches historical prices for a given company listed on the GPW.
         :param start_date: The start date for the historical prices in 'DD-MM-YYYY' format.
         :param end_date: The end date for the historical prices in 'DD-MM-YYYY' format.
         """
+        self.driver = webdriver.Chrome(service=self.service, options=self.options)
+        if start_date is None:
+            start_date = datetime.datetime.strptime(self.config['initial_date'], "%Y-%m-%d").date()
+
+        if end_date is None:
+            end_date = datetime.datetime.now().date() - timedelta(days=1)
+
+        current_date = end_date
+
+        # Loop through the dates from end_date to start_date to fetch data
+        wait = self.get_data(current_date)
+        cookie_accept = True
+        while current_date > start_date:
+            current_date -= timedelta(days=1)
+
+            # Check if the current date is a weekday (Monday to Friday)
+            if current_date.weekday() not in [5, 6]:
+                # TODO add a check if the data is a holiday
+                # Wait if the data was just downloaded to avoid too many requests
+                if wait:
+                    time.sleep(self.config['wait_between_requests'])
+                    cookie_accept = False
+                wait = self.get_data(current_date, cookie_accept=cookie_accept)
 
         self.driver.quit()
         pass
