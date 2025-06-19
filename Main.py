@@ -1,5 +1,3 @@
-import datetime
-
 from GpwScraper import GpwScraper
 from Other.imports import *
 
@@ -15,8 +13,8 @@ def main():
     # gpw_scraper.get_historical_prices(
     #     datetime.date(2025, 6, 12),
     #     datetime.date(2025, 6, 18))
-    #print(datetime.date(2025, 6, 16).weekday())
-    gpw_scraper.get_companies_info(['06MAGNA'])
+    # print(datetime.date(2025, 6, 16).weekday())
+    gpw_scraper.get_companies_info(['11BIT', '3RGAMES', '4MASS', 'ABPL', 'ACAUTOGAZ'])
 
 
 if __name__ == "__main__":

@@ -1,5 +1,3 @@
-import time
-
 from Scraper import StockScraper
 from Other.imports import *
 from Other.constants import *
@@ -53,8 +51,6 @@ class GpwScraper(StockScraper):
             site = self.__url_template.format(date=date_reversed)
             self.driver.get(site)
             wait = WebDriverWait(self.driver, self.config['wait_time'])
-
-
 
             try:
                 # Wait for the ability to download the file
@@ -169,6 +165,6 @@ class GpwScraper(StockScraper):
             company_country = self.scrape_basic_info_bankier("boxAddressData", "Kraj")
             print(f"Company: {company}, Sector: {company_sector}, City: {company_city}, Country: {company_country}")
             # TODO save the data to a database
-
+            time.sleep(self.config['wait_between_requests'])
         self.driver.quit()
         pass
