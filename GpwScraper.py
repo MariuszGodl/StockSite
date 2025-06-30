@@ -1,11 +1,8 @@
-from Scraper import StockScraper
+from SyncScraper import SyncStockScraper
 from Other.imports import *
 from Other.constants import *
 
-FILE_EXTENSION = '_akcje.xls'
-
-
-class GpwScraper(StockScraper):
+class GpwScraper(SyncStockScraper):
     """
     Concrete implementation of StockScraper for GPW (Giełda Papierów Wartościowych w Warszawie).
     This class implements the abstract methods defined in StockScraper.
@@ -34,7 +31,7 @@ class GpwScraper(StockScraper):
         })
         self.service = Service(DRIVER_PATH)
 
-    def get_data(self, date, cookie_accept=True, remove_if_exist=False):
+    def get_data(self, date, cookie_accept=True, remove_if_exist=False) -> None:
         """
         Fetches data for a given date from GPW.
 
@@ -51,6 +48,14 @@ class GpwScraper(StockScraper):
             site = self.__url_template.format(date=date_reversed)
             self.driver.get(site)
             wait = WebDriverWait(self.driver, self.config['wait_time'])
+
+            if cookie_accept:
+                try:
+                    # Wait for the cookie accept button to appear (adjust selector!)
+                    cookie_button = wait.until(EC.element_to_be_clickable((By.ID, "onetrust-accept-btn-handler")))
+                    cookie_button.click()
+                except (TimeoutException, NoSuchElementException):
+                    print("No cookie banner found or already accepted")
 
             try:
                 # Wait for the ability to download the file
@@ -74,7 +79,6 @@ class GpwScraper(StockScraper):
             return True
 
         return False  # File already exists, no need to download again
-        pass
 
     def get_companies(self):
         """

@@ -1,0 +1,15 @@
+{
+  "initial_date": "" ,
+  "downloads_path": "StockData/Nasdaq",
+  "driver_path": "Other/chromedriver.exe",
+  "FULL_URL_GPW_ARCHIVE" : "",
+  "url_template": "",
+  "file_prefix": "",
+  "file_suffix": "",
+  "FULL_URL_TO_COMPANIES_INFO": "",
+  "url_company_info": "",
+  "error_file_path": "ErrorLogs/NasdaqErrors.log",
+  "wait_time": 5,
+  "wait_between_requests": 30
+
+}
