@@ -27,7 +27,6 @@ CREATE TABLE Company (
     Industry VARCHAR(100) NOT NULL CHECK (Industry REGEXP '^[A-Za-zĄąĆćĘęŁłŃńÓóŚśŹźŻż ]+$'),
     Info VARCHAR(5000) NOT NULL,
     NrOfShares INT NOT NULL CHECK (NrOfShares > 0),
-    Capitalization INT NOT NULL,
     Country VARCHAR(100) NOT NULL CHECK (Country REGEXP '^[A-Za-zĄąĆćĘęŁłŃńÓóŚśŹźŻż ]+$'),
     City VARCHAR(100) NOT NULL CHECK (City REGEXP '^[A-Za-zĄąĆćĘęŁłŃńÓóŚśŹźŻż ]+$'),
     CreationDate DATE NOT NULL,

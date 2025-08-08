@@ -89,19 +89,50 @@ class GpwScraper(SyncStockScraper):
         # Request to the database
         # Returns a tuple with (ID, name, starting date)
         #TODO database
-        if mode == 0 :
+        if mode == 1 :
             ExchangePath = 'StockData/GPW'
             companies = set()
+            unique = []
             for CurrentFile in os.listdir(ExchangePath):
                 file_path = os.path.join(ExchangePath, CurrentFile)
                 df = pd.read_excel(file_path)
 
                 if 'Nazwa' in df.columns:
                     for company in df['Nazwa']:
-                        companies.add(company)
+                        if company not in companies:
+                            unique.append(company)
+                            companies.add(company)
+            #print(unique)
+            return unique
+        else:
+            try:
+                conn = mysql.connector.connect(
+                    host="localhost",
+                    user="StockInsertion",
+                    password="StockDataInsertion",
+                    database="Stock"
+                )
+                if conn.is_connected():
+                    print("Connected")
 
-            return list(companies)
+                cursor = conn.cursor()
+                select_query = "SELECT Identifier FROM Company"
 
+                cursor.execute(select_query)
+                unique_companies = cursor.fetchall() 
+                conn.commit()
+                print("Record inserted successfully")
+
+            except Error as e:
+                print(f"Error: {e}")
+
+            finally:
+                if conn.is_connected():
+                    cursor.close()
+                    conn.close()
+                    print("MySQL connection closed")
+            clean_list = [company[0] for company in unique_companies]
+            return clean_list
         pass
 
     def get_yesterday_prices(self):

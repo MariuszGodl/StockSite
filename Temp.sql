@@ -1,5 +1,5 @@
 CREATE USER 'StockInsertion'@'localhost' IDENTIFIED BY 'StockDataInsertion';
-GRANT INSERT, UPDATE ON Stock.* TO 'StockInsertion'@'localhost';
+GRANT SELECT, INSERT, UPDATE ON Stock.* TO 'StockInsertion'@'localhost';
 
 USE Stock;
 ALTER TABLE Company
