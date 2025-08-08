@@ -15,7 +15,8 @@ CREATE TABLE StockExchange (
     ID INT AUTO_INCREMENT PRIMARY KEY,
     ExchangeName VARCHAR(100) NOT NULL CHECK (ExchangeName REGEXP '^[A-Za-zĄąĆćĘęŁłŃńÓóŚśŹźŻż ]+$'),
     Country VARCHAR(100) NOT NULL CHECK (Country = 'Polska'),
-    City VARCHAR(100) NOT NULL CHECK (City REGEXP '^[A-Za-zĄąĆćĘęŁłŃńÓóŚśŹźŻż ]+$')
+    City VARCHAR(100) NOT NULL CHECK (City REGEXP '^[A-Za-zĄąĆćĘęŁłŃńÓóŚśŹźŻż ]+$'),
+    UNIQUE(ExchangeName)
 );
 
 -- Company Table
@@ -30,7 +31,8 @@ CREATE TABLE Company (
     Country VARCHAR(100) NOT NULL CHECK (Country REGEXP '^[A-Za-zĄąĆćĘęŁłŃńÓóŚśŹźŻż ]+$'),
     City VARCHAR(100) NOT NULL CHECK (City REGEXP '^[A-Za-zĄąĆćĘęŁłŃńÓóŚśŹźŻż ]+$'),
     CreationDate DATE NOT NULL,
-    DestructionDate DATE 
+    DestructionDate DATE,
+    UNIQUE(Identifier)
 );
 
 
@@ -100,6 +102,9 @@ CREATE TABLE DayValue (
     `CLOSE` DECIMAL(10,2) NOT NULL,
     `MIN` DECIMAL(10,2) NOT NULL,
     `MAX` DECIMAL(10,2) NOT NULL,
+    Volume INT NOT NULL,
+    Trades INT NOT NULL,
+    Turnover DECIMAL(10,2) NOT NULL,
 
     FOREIGN KEY (CompanyID) REFERENCES Company(ID) ON DELETE CASCADE,
     UNIQUE (CompanyID, `Date`)

@@ -193,7 +193,6 @@ class GpwScraper(SyncStockScraper):
         description = box_desc.find_element(By.TAG_NAME, "p").text
         return description
 
-
     def get_companies_info(self):
         """
         Fetches information about a specific company listed on the GPW.
@@ -202,7 +201,7 @@ class GpwScraper(SyncStockScraper):
         self.driver = webdriver.Chrome(service=self.service, options=self.options)
 
         cookie_accept = True
-        companies = self.get_companies(0)
+        companies = self.get_companies(1)
         for company in companies:
             site = self.config['url_company_info'].format(company=company)
             self.driver.get(site)
@@ -230,21 +229,6 @@ class GpwScraper(SyncStockScraper):
             company_country = self.scrape_basic_info_bankier("boxAddressData", "Kraj")
             company_info = self.scrape_company_description()
             print(f"Company: {company}, Name: {company_name}, CEO {company_ceo} Sector: {company_sector}, Shares: {company_shares} City: {company_city}, Country: {company_country}, Info {company_info}")
-            # TODO save the data to a database
-            # CREATE TABLE Company (
-            #     ID INT AUTO_INCREMENT PRIMARY KEY,
-            #     Identifier VARCHAR(10) NOT NULL CHECK (Identifier REGEXP '^[A-Za-z0-9 ]+$'), 
-            #     CompanyName VARCHAR(100) NOT NULL CHECK (CompanyName REGEXP '^[A-Za-z0-9ĄąĆćĘęŁłŃńÓóŚśŹźŻż ]+$'),
-            #     CEO VARCHAR(100) NOT NULL CHECK (CEO REGEXP '^[A-Za-z0-9ĄąĆćĘęŁłŃńÓóŚśŹźŻż ]+$'),
-            #     Industry VARCHAR(100) NOT NULL CHECK (Industry REGEXP '^[A-Za-zĄąĆćĘęŁłŃńÓóŚśŹźŻż ]+$'),
-            #     Info VARCHAR(5000) NOT NULL CHECK (Info REGEXP '^[A-Za-z0-9ĄąĆćĘęŁłŃńÓóŚśŹźŻż ]+$'),
-            #     NrOfShares INT NOT NULL CHECK (NrOfShares > 0),
-            #     Country VARCHAR(100) NOT NULL CHECK (Country REGEXP '^[A-Za-zĄąĆćĘęŁłŃńÓóŚśŹźŻż ]+$'),
-            #     City VARCHAR(100) NOT NULL CHECK (City REGEXP '^[A-Za-zĄąĆćĘęŁłŃńÓóŚśŹźŻż ]+$'),
-            #     CreationDate DATE NOT NULL,
-            #     DestructionDate DATE 
-            # );
-            
             try:
                 conn = mysql.connector.connect(
                     host="localhost",
@@ -256,7 +240,7 @@ class GpwScraper(SyncStockScraper):
                     print("Connected")
 
                 cursor = conn.cursor()
-
+                
                 insert_query = """
                     INSERT INTO Company
                     (Identifier, CompanyName, CEO, Industry, Info, NrOfShares, Country, City, CreationDate, DestructionDate)

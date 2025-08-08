@@ -13,3 +13,4 @@ SELECT VERSION();
 USE Stock;
 SELECT * FROM StockExchange
 SELECT * FROM Company
+SELECT * FROM DayValue
