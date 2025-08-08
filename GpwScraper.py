@@ -80,13 +80,26 @@ class GpwScraper(SyncStockScraper):
 
         return False  # File already exists, no need to download again
 
-    def get_companies(self):
+    def get_companies(self, mode):
         """
         Fetches a list of companies listed on the GPW.
+        :param mode: if 0 take it from database if 1 get it from the data
         """
         # Implementation goes here
         # Request to the database
         # Returns a tuple with (ID, name, starting date)
+        #TODO database
+        if mode == 0 :
+            with open("GPW_Companies.csv", newline='', encoding='utf-8') as csvfile:
+                reader = csv.reader(csvfile)
+                next(reader)  # skip header row
+                companies = []
+                for row in reader:
+                    # Assuming the company name is in the second column (index 1)
+                    company_name = row[1].strip()  # remove whitespace
+                    companies.append(company_name)
+            return companies
+
         pass
 
     def get_yesterday_prices(self):
@@ -140,7 +153,15 @@ class GpwScraper(SyncStockScraper):
         searched = label.find_element(By.XPATH, "following-sibling::td").text
         return searched.upper()
 
-    def get_companies_info(self, companies):
+    def scrape_company_description(self):
+        # Find the container with id 'boxDesc'
+        box_desc = self.driver.find_element(By.ID, "boxDesc")
+        # Inside that container, find the <p> tag with the description text
+        description = box_desc.find_element(By.TAG_NAME, "p").text
+        return description
+
+
+    def get_companies_info(self):
         """
         Fetches information about a specific company listed on the GPW.
         :param companies: The names of the companies for which information is to be fetched.
@@ -148,13 +169,12 @@ class GpwScraper(SyncStockScraper):
         self.driver = webdriver.Chrome(service=self.service, options=self.options)
 
         cookie_accept = True
-
+        companies = self.get_companies(0)
         for company in companies:
             site = self.config['url_company_info'].format(company=company)
             self.driver.get(site)
             wait = WebDriverWait(self.driver, self.config['wait_time'])
 
-            # TODO cookie accept
             if cookie_accept:
                 try:
                     # Wait for the cookie accept button to appear (adjust selector!)
@@ -164,11 +184,80 @@ class GpwScraper(SyncStockScraper):
                     print("No cookie banner found or already accepted")
 
             cookie_accept = False
+            company_name = self.scrape_basic_info_bankier("boxBasicData", "Nazwa spółki")
             company_sector = self.scrape_basic_info_bankier("boxBasicData", "Sektor")
+            company_shares = self.scrape_basic_info_bankier("boxBasicData", "Liczba akcji")
+            company_shares = company_shares.replace(" ", "").replace(",", "")  # remove spaces and commas
+            try:
+                company_shares = int(company_shares)
+            except ValueError:
+                company_shares = 0
+            company_ceo = self.scrape_basic_info_bankier("boxBasicData", "Prezes")
             company_city = self.scrape_basic_info_bankier("boxAddressData", "Miejscowość")
             company_country = self.scrape_basic_info_bankier("boxAddressData", "Kraj")
-            print(f"Company: {company}, Sector: {company_sector}, City: {company_city}, Country: {company_country}")
+            company_info = self.scrape_company_description()
+            print(f"Company: {company}, Name: {company_name}, CEO {company_ceo} Sector: {company_sector}, Shares: {company_shares} City: {company_city}, Country: {company_country}, Info {company_info}")
             # TODO save the data to a database
+            # CREATE TABLE Company (
+            #     ID INT AUTO_INCREMENT PRIMARY KEY,
+            #     Identifier VARCHAR(10) NOT NULL CHECK (Identifier REGEXP '^[A-Za-z0-9 ]+$'), 
+            #     CompanyName VARCHAR(100) NOT NULL CHECK (CompanyName REGEXP '^[A-Za-z0-9ĄąĆćĘęŁłŃńÓóŚśŹźŻż ]+$'),
+            #     CEO VARCHAR(100) NOT NULL CHECK (CEO REGEXP '^[A-Za-z0-9ĄąĆćĘęŁłŃńÓóŚśŹźŻż ]+$'),
+            #     Industry VARCHAR(100) NOT NULL CHECK (Industry REGEXP '^[A-Za-zĄąĆćĘęŁłŃńÓóŚśŹźŻż ]+$'),
+            #     Info VARCHAR(5000) NOT NULL CHECK (Info REGEXP '^[A-Za-z0-9ĄąĆćĘęŁłŃńÓóŚśŹźŻż ]+$'),
+            #     NrOfShares INT NOT NULL CHECK (NrOfShares > 0),
+            #     Capitalization INT NOT NULL,
+            #     Country VARCHAR(100) NOT NULL CHECK (Country REGEXP '^[A-Za-zĄąĆćĘęŁłŃńÓóŚśŹźŻż ]+$'),
+            #     City VARCHAR(100) NOT NULL CHECK (City REGEXP '^[A-Za-zĄąĆćĘęŁłŃńÓóŚśŹźŻż ]+$'),
+            #     CreationDate DATE NOT NULL,
+            #     DestructionDate DATE 
+            # );
+            
+            try:
+                conn = mysql.connector.connect(
+                    host="localhost",
+                    user="StockInsertion",
+                    password="StockDataInsertion",
+                    database="Stock"
+                )
+                if conn.is_connected():
+                    print("Connected")
+
+                cursor = conn.cursor()
+
+                insert_query = """
+                    INSERT INTO Company
+                    (Identifier, CompanyName, CEO, Industry, Info, NrOfShares, Capitalization, Country, City, CreationDate, DestructionDate)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """
+
+                data_tuple = (
+                    company,
+                    company_name,
+                    company_ceo,
+                    "test",
+                    company_info,
+                    company_shares,
+                    1,
+                    company_country,
+                    company_city,
+                    '2025-06-15',
+                    None
+                )
+
+                cursor.execute(insert_query, data_tuple)
+                conn.commit()
+                print("Record inserted successfully")
+
+            except Error as e:
+                print(f"Error: {e}")
+
+            finally:
+                if conn.is_connected():
+                    cursor.close()
+                    conn.close()
+                    print("MySQL connection closed")
+            #
             time.sleep(self.config['wait_between_requests'])
         self.driver.quit()
         pass

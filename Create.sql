@@ -21,10 +21,15 @@ CREATE TABLE StockExchange (
 -- Company Table
 CREATE TABLE Company (
     ID INT AUTO_INCREMENT PRIMARY KEY,
-    CompanyName VARCHAR(100) NOT NULL CHECK (CompanyName REGEXP '^[A-Za-zĄąĆćĘęŁłŃńÓóŚśŹźŻż ]+$'),
+    Identifier VARCHAR(10) NOT NULL CHECK (Identifier REGEXP '^[A-Za-z0-9 ]+$'), 
+    CompanyName VARCHAR(100) NOT NULL CHECK (CompanyName REGEXP '^[A-Za-z0-9ĄąĆćĘęŁłŃńÓóŚśŹźŻż ]+$'),
+    CEO VARCHAR(100) NOT NULL CHECK (CEO REGEXP '^[A-Za-z0-9ĄąĆćĘęŁłŃńÓóŚśŹźŻż ]+$'),
     Industry VARCHAR(100) NOT NULL CHECK (Industry REGEXP '^[A-Za-zĄąĆćĘęŁłŃńÓóŚśŹźŻż ]+$'),
-    NrOfShares INT UNSIGNED NOT NULL CHECK (NrOfShares > 0),
+    Info VARCHAR(5000) NOT NULL,
+    NrOfShares INT NOT NULL CHECK (NrOfShares > 0),
+    Capitalization INT NOT NULL,
     Country VARCHAR(100) NOT NULL CHECK (Country REGEXP '^[A-Za-zĄąĆćĘęŁłŃńÓóŚśŹźŻż ]+$'),
+    City VARCHAR(100) NOT NULL CHECK (City REGEXP '^[A-Za-zĄąĆćĘęŁłŃńÓóŚśŹźŻż ]+$'),
     CreationDate DATE NOT NULL,
     DestructionDate DATE 
 );
