@@ -11,8 +11,8 @@ def main():
     # gpw_scraper.get_data(date)
     # gpw_scraper.get_yesterday_prices()
     # gpw_scraper.get_historical_prices(
-    #     datetime.date(2020, 1, 1),
-    #     datetime.date(2023, 5, 30))
+    #     datetime.date(2018, 1, 1),
+    #     datetime.date(2022, 5, 30))
     # # print(datetime.date(2025, 6, 16).weekday())
     gpw_scraper.get_companies_info()
 

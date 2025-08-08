@@ -90,15 +90,17 @@ class GpwScraper(SyncStockScraper):
         # Returns a tuple with (ID, name, starting date)
         #TODO database
         if mode == 0 :
-            with open("GPW_Companies.csv", newline='', encoding='utf-8') as csvfile:
-                reader = csv.reader(csvfile)
-                next(reader)  # skip header row
-                companies = []
-                for row in reader:
-                    # Assuming the company name is in the second column (index 1)
-                    company_name = row[1].strip()  # remove whitespace
-                    companies.append(company_name)
-            return companies
+            ExchangePath = 'StockData/GPW'
+            companies = set()
+            for CurrentFile in os.listdir(ExchangePath):
+                file_path = os.path.join(ExchangePath, CurrentFile)
+                df = pd.read_excel(file_path)
+
+                if 'Nazwa' in df.columns:
+                    for company in df['Nazwa']:
+                        companies.add(company)
+
+            return list(companies)
 
         pass
 
@@ -206,7 +208,6 @@ class GpwScraper(SyncStockScraper):
             #     Industry VARCHAR(100) NOT NULL CHECK (Industry REGEXP '^[A-Za-zĄąĆćĘęŁłŃńÓóŚśŹźŻż ]+$'),
             #     Info VARCHAR(5000) NOT NULL CHECK (Info REGEXP '^[A-Za-z0-9ĄąĆćĘęŁłŃńÓóŚśŹźŻż ]+$'),
             #     NrOfShares INT NOT NULL CHECK (NrOfShares > 0),
-            #     Capitalization INT NOT NULL,
             #     Country VARCHAR(100) NOT NULL CHECK (Country REGEXP '^[A-Za-zĄąĆćĘęŁłŃńÓóŚśŹźŻż ]+$'),
             #     City VARCHAR(100) NOT NULL CHECK (City REGEXP '^[A-Za-zĄąĆćĘęŁłŃńÓóŚśŹźŻż ]+$'),
             #     CreationDate DATE NOT NULL,
@@ -227,8 +228,8 @@ class GpwScraper(SyncStockScraper):
 
                 insert_query = """
                     INSERT INTO Company
-                    (Identifier, CompanyName, CEO, Industry, Info, NrOfShares, Capitalization, Country, City, CreationDate, DestructionDate)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    (Identifier, CompanyName, CEO, Industry, Info, NrOfShares, Country, City, CreationDate, DestructionDate)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """
 
                 data_tuple = (
@@ -238,7 +239,6 @@ class GpwScraper(SyncStockScraper):
                     "test",
                     company_info,
                     company_shares,
-                    1,
                     company_country,
                     company_city,
                     '2025-06-15',
