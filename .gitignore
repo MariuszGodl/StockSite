@@ -1,6 +1,7 @@
 __pycache__/
 .idea/
 .vscode/
+.env
 StockData/
 ErrorLogs/
 Selenium tutorial.py

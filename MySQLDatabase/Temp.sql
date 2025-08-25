@@ -14,3 +14,9 @@ USE Stock;
 SELECT * FROM StockExchange
 SELECT * FROM Company
 SELECT * FROM DayValue
+SELECT * FROm StockExchangeEntering
+
+TRUNCATE TABLE DayValue;
+TRUNCATE TABLE StockExchangeEntering;
+TRUNCATE TABLE Company;
+TRUNCATE TABLE StockExchange;

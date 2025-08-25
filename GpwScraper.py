@@ -1,6 +1,7 @@
 from SyncScraper import SyncStockScraper
 from Other.imports import *
 from Other.constants import *
+load_dotenv()
 
 class GpwScraper(SyncStockScraper):
     """
@@ -107,10 +108,11 @@ class GpwScraper(SyncStockScraper):
         else:
             try:
                 conn = mysql.connector.connect(
-                    host="localhost",
-                    user="StockInsertion",
-                    password="StockDataInsertion",
-                    database="Stock"
+                    host=os.getenv("DB_HOST"),
+                    port=os.getenv("DB_PORT"),
+                    user=os.getenv("DB_USER"),
+                    password=os.getenv("DB_PASSWORD"),
+                    database=os.getenv("DB_NAME"),
                 )
                 if conn.is_connected():
                     print("Connected")
@@ -201,7 +203,7 @@ class GpwScraper(SyncStockScraper):
         self.driver = webdriver.Chrome(service=self.service, options=self.options)
 
         cookie_accept = True
-        companies = self.get_companies(1)
+        companies = ['06MAGNA']#self.get_companies(1)
         for company in companies:
             site = self.config['url_company_info'].format(company=company)
             self.driver.get(site)
@@ -231,10 +233,11 @@ class GpwScraper(SyncStockScraper):
             print(f"Company: {company}, Name: {company_name}, CEO {company_ceo} Sector: {company_sector}, Shares: {company_shares} City: {company_city}, Country: {company_country}, Info {company_info}")
             try:
                 conn = mysql.connector.connect(
-                    host="localhost",
-                    user="StockInsertion",
-                    password="StockDataInsertion",
-                    database="Stock"
+                    host=os.getenv("DB_HOST"),
+                    port=os.getenv("DB_PORT"),
+                    user=os.getenv("DB_USER"),
+                    password=os.getenv("DB_PASSWORD"),
+                    database=os.getenv("DB_NAME"),
                 )
                 if conn.is_connected():
                     print("Connected")
@@ -262,6 +265,7 @@ class GpwScraper(SyncStockScraper):
 
                 cursor.execute(insert_query, data_tuple)
                 conn.commit()
+                #select the company, need CompanyId and then connect it to GPW
                 print("Record inserted successfully")
 
             except Error as e:

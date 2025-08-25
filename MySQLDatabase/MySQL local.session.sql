@@ -1,0 +1,3 @@
+DESCRIBE Company;
+
+SELECT * FROM DayValue
