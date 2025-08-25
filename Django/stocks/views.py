@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404
 from .models import Company, DayValue
 from datetime import date, timedelta
 
-def company_detail(request, identifier, value_date=None):
+def company_detail(request, identifier='06MAGNA', value_date=None):
     """
     Show company detail and DayValue for a specific date.
     If value_date is None, show the latest (or 2 days ago).
@@ -25,8 +25,19 @@ def company_detail(request, identifier, value_date=None):
     }
     return render(request, "stocks/company_detail.html", context)
 
+
+
 def contact(request):
     context = {
 
     }
     return render(request, "stocks/contact.html", context)
+
+
+
+def about_me(request):
+    context = {
+
+    }
+    return render(request, "stocks/about_me.html", context)
+

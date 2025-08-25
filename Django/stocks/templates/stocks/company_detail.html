@@ -19,8 +19,8 @@
           <div>StockView <span class="muted" style="font-weight:400;font-size:13px"></span></div>
         </div>
           <nav aria-label="Primary">
-            <a href="{% url 'reload' %}" class="nav-link" data-page="home">Home</a>
-            <a href="{% url 'fix' %}" class="nav-link" data-page="news">News</a>
+            <a href="{% url 'company_detail' identifier=Company.identifier %}" class="nav-link" data-page="home">Home</a>
+            <a href="{% url 'about_me' %}" class="nav-link" data-page="aboutme">About me</a>
             <a href="{% url 'contact' %}" class="nav-link" data-page="contact">Contact</a>
           </nav>
       </div>
@@ -120,18 +120,22 @@
   </footer>
 
     <script>
-    // Determine current page
-    const path = window.location.pathname;
-    const currentPage = 
-        path.endsWith('/') || path.endsWith('/index.html') ? 'home' :
-        path.endsWith('news.html') ? 'news' :
-        path.endsWith('contact.html') ? 'contact' : '';
+          const path = window.location.pathname;
+
+    let currentPage = '';
+    if (path === '/' || path.endsWith('/company/')) {
+      currentPage = 'home';
+    } else if (path.includes('about') || path.endsWith('/about_me/')) {
+      currentPage = 'aboutme';
+    } else if (path.includes('contact') || path.endsWith('/contact/')) {
+      currentPage = 'contact';
+    }
 
     // Highlight matching nav link
     document.querySelectorAll('.nav-link').forEach(link => {
-        if (link.dataset.page === currentPage) {
+      if (link.dataset.page === currentPage) {
         link.classList.add('active');
-        }
+      }
     });
 
     // Auth modal logic

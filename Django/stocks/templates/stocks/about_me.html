@@ -4,9 +4,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Contact — StockView</title>
+  <title>Stock Dashboard — About me</title>
   <link rel="stylesheet" href="{% static 'catalog/styles.css' %}">
-
 </head>
 <body>
   <!-- Header / Navigation -->
@@ -17,11 +16,11 @@
         <div>
           <div>StockView <span class="muted" style="font-weight:400;font-size:13px"></span></div>
         </div>
-        <nav aria-label="Primary">
-            <a href="/contact" class="nav-link" data-page="home">Home</a>
-            <a href="news.html" class="nav-link" data-page="news">News</a>
-            <a href="contact.html" class="nav-link" data-page="contact">Contact</a>
-        </nav>
+          <nav aria-label="Primary">
+            <a href="{% url 'company_detail' %}" class="nav-link" data-page="home">Home</a>
+            <a href="{% url 'about_me' %}" class="nav-link" data-page="aboutme">About me</a>
+            <a href="{% url 'contact' %}" class="nav-link" data-page="contact">Contact</a>
+          </nav>
       </div>
 
       <div style="display:flex;gap:12px;align-items:center">
@@ -91,16 +90,21 @@
   <script>
     // Determine current page
     const path = window.location.pathname;
-    const currentPage = 
-        path.endsWith('/') || path.endsWith('/index.html') ? 'home' :
-        path.endsWith('news.html') ? 'news' :
-        path.endsWith('contact.html') ? 'contact' : '';
+
+    let currentPage = '';
+    if (path === '/' || path.endsWith('/index.html')) {
+      currentPage = 'home';
+    } else if (path.includes('about') || path.endsWith('/about_me/')) {
+      currentPage = 'aboutme';
+    } else if (path.includes('contact') || path.endsWith('/contact/')) {
+      currentPage = 'contact';
+    }
 
     // Highlight matching nav link
     document.querySelectorAll('.nav-link').forEach(link => {
-        if (link.dataset.page === currentPage) {
+      if (link.dataset.page === currentPage) {
         link.classList.add('active');
-        }
+      }
     });
 
     // Auth modal logic
