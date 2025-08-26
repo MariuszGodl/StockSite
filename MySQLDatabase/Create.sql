@@ -30,6 +30,8 @@ CREATE TABLE Company (
     NrOfShares INT NOT NULL CHECK (NrOfShares > 0),
     Country VARCHAR(100) NOT NULL CHECK (Country REGEXP '^[A-Za-zĄąĆćĘęŁłŃńÓóŚśŹźŻż ]+$'),
     City VARCHAR(100) NOT NULL CHECK (City REGEXP '^[A-Za-zĄąĆćĘęŁłŃńÓóŚśŹźŻż ]+$'),
+    Capitalization INT NOT NULL CHECK (Capitalization > 0),
+    PERatio DECIMAL(10,2) NOT NULL,
     CreationDate DATE NOT NULL,
     DestructionDate DATE,
     UNIQUE(Identifier)

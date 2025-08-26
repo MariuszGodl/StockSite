@@ -10,6 +10,7 @@
   "url_company_info": "https://www.bankier.pl/gielda/notowania/akcje/{company}/podstawowe-dane",
   "error_file_path": "ErrorLogs/GpwErrors.log",
   "wait_time": 5,
-  "wait_between_requests": 30
-
+  "wait_between_requests": 30,
+  "url_company_capitalization": "https://www.bankier.pl/gielda/notowania/akcje/{company}/akcjonariat",
+  "url_company_pe": "https://www.bankier.pl/gielda/notowania/akcje/06MAGNA/wyniki-finansowe"
 }

@@ -32,6 +32,15 @@ class GpwScraper(SyncStockScraper):
         })
         self.service = Service(DRIVER_PATH)
 
+    def accepting_cookies(self, cookie_accept, wait) -> None:
+        if cookie_accept:
+            try:
+                # Wait for the cookie accept button to appear (adjust selector!)
+                cookie_button = wait.until(EC.element_to_be_clickable((By.ID, "onetrust-accept-btn-handler")))
+                cookie_button.click()
+            except (TimeoutException, NoSuchElementException):
+                print("No cookie banner found or already accepted")
+
     def get_data(self, date, cookie_accept=True, remove_if_exist=False) -> None:
         """
         Fetches data for a given date from GPW.
@@ -50,14 +59,7 @@ class GpwScraper(SyncStockScraper):
             self.driver.get(site)
             wait = WebDriverWait(self.driver, self.config['wait_time'])
 
-            if cookie_accept:
-                try:
-                    # Wait for the cookie accept button to appear (adjust selector!)
-                    cookie_button = wait.until(EC.element_to_be_clickable((By.ID, "onetrust-accept-btn-handler")))
-                    cookie_button.click()
-                except (TimeoutException, NoSuchElementException):
-                    print("No cookie banner found or already accepted")
-
+            self.accepting_cookies(cookie_accept, wait)
             try:
                 # Wait for the ability to download the file
                 file_download = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "a.btn.btn-icon")))
@@ -80,6 +82,9 @@ class GpwScraper(SyncStockScraper):
             return True
 
         return False  # File already exists, no need to download again
+
+
+
 
     def get_companies(self, mode):
         """
@@ -194,7 +199,28 @@ class GpwScraper(SyncStockScraper):
         # Inside that container, find the <p> tag with the description text
         description = box_desc.find_element(By.TAG_NAME, "p").text
         return description
+    
+    def scrape_company_capitalization(self, company, cookie_accept=False):
 
+        url = self.config['url_company_capitalization'].format(company=company)
+        self.driver.get(url)
+        wait = WebDriverWait(self.driver, self.config['wait_time'])
+        self.accepting_cookies(cookie_accept, wait)
+        
+        box_desc = self.driver.find_element(By.ID, "boxProfil")
+        capitalization_str = box_desc.find_element(
+            By.XPATH, ".//td[normalize-space(text())='Kapitalizacja:']/following-sibling::td[1]"
+        ).text.strip()
+
+        print("Capitalization:", capitalization_str)
+        capitalization = float(capitalization_str.replace("\xa0", "").replace(" ", "").replace(",", "."))
+        print(capitalization)
+        return capitalization
+    
+    def scrape_company_pe_ratio(self):
+        pe_ratio = 10
+        return pe_ratio
+    
     def get_companies_info(self):
         """
         Fetches information about a specific company listed on the GPW.
@@ -209,13 +235,7 @@ class GpwScraper(SyncStockScraper):
             self.driver.get(site)
             wait = WebDriverWait(self.driver, self.config['wait_time'])
 
-            if cookie_accept:
-                try:
-                    # Wait for the cookie accept button to appear (adjust selector!)
-                    cookie_button = wait.until(EC.element_to_be_clickable((By.ID, "onetrust-accept-btn-handler")))
-                    cookie_button.click()
-                except (TimeoutException, NoSuchElementException):
-                    print("No cookie banner found or already accepted")
+            self.accepting_cookies(cookie_accept, wait)
 
             cookie_accept = False
             company_name = self.scrape_basic_info_bankier("boxBasicData", "Nazwa spółki")
@@ -227,10 +247,14 @@ class GpwScraper(SyncStockScraper):
             except ValueError:
                 company_shares = 0
             company_ceo = self.scrape_basic_info_bankier("boxBasicData", "Prezes")
-            company_city = self.scrape_basic_info_bankier("boxAddressData", "Miejscowość")
             company_country = self.scrape_basic_info_bankier("boxAddressData", "Kraj")
+            company_city = self.scrape_basic_info_bankier("boxAddressData", "Miejscowość")
             company_info = self.scrape_company_description()
-            print(f"Company: {company}, Name: {company_name}, CEO {company_ceo} Sector: {company_sector}, Shares: {company_shares} City: {company_city}, Country: {company_country}, Info {company_info}")
+            
+            capitalization = self.scrape_company_capitalization(company)
+            pe_ratio = 10
+            print(pe_ratio, capitalization)
+            #print(f"Company: {company}, Name: {company_name}, CEO {company_ceo} Sector: {company_sector}, Shares: {company_shares} City: {company_city}, Country: {company_country}, Info {company_info}")
             try:
                 conn = mysql.connector.connect(
                     host=os.getenv("DB_HOST"),
@@ -246,7 +270,7 @@ class GpwScraper(SyncStockScraper):
                 
                 insert_query = """
                     INSERT INTO Company
-                    (Identifier, CompanyName, CEO, Industry, Info, NrOfShares, Country, City, CreationDate, DestructionDate)
+                    (Identifier, CompanyName, CEO, Industry, Info, NrOfShares, Country, City, Capitalization, PERatio, CreationDate, DestructionDate)
                     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """
 
@@ -259,6 +283,8 @@ class GpwScraper(SyncStockScraper):
                     company_shares,
                     company_country,
                     company_city,
+                    capitalization,
+                    pe_ratio,
                     '2025-06-15',
                     None
                 )
