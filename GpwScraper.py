@@ -1,6 +1,8 @@
 from SyncScraper import SyncStockScraper
 from Other.imports import *
 from Other.constants import *
+from industry_clasification import company_classifcation
+
 load_dotenv()
 
 class GpwScraper(SyncStockScraper):
@@ -40,6 +42,7 @@ class GpwScraper(SyncStockScraper):
                 cookie_button.click()
             except (TimeoutException, NoSuchElementException):
                 print("No cookie banner found or already accepted")
+
 
     def get_data(self, date, cookie_accept=True, remove_if_exist=False) -> None:
         """
@@ -152,6 +155,7 @@ class GpwScraper(SyncStockScraper):
         self.driver.quit()
         pass
 
+
     def get_historical_prices(self, start_date=None, end_date=None):
         """
         Fetches historical prices for a given company listed on the GPW.
@@ -200,6 +204,7 @@ class GpwScraper(SyncStockScraper):
         description = box_desc.find_element(By.TAG_NAME, "p").text
         return description
     
+
     def scrape_company_capitalization(self, company, cookie_accept=False):
 
         url = self.config['url_company_capitalization'].format(company=company)
@@ -212,15 +217,12 @@ class GpwScraper(SyncStockScraper):
             By.XPATH, ".//td[normalize-space(text())='Kapitalizacja:']/following-sibling::td[1]"
         ).text.strip()
 
-        print("Capitalization:", capitalization_str)
-        capitalization = float(capitalization_str.replace("\xa0", "").replace(" ", "").replace(",", "."))
-        print(capitalization)
+        #print("Capitalization:", capitalization_str)
+        capitalization = int(float(capitalization_str.replace("\xa0", "").replace(" ", "").replace(",", ".")))
+        #print(capitalization)
         return capitalization
     
-    def scrape_company_pe_ratio(self):
-        pe_ratio = 10
-        return pe_ratio
-    
+
     def get_companies_info(self):
         """
         Fetches information about a specific company listed on the GPW.
@@ -252,9 +254,7 @@ class GpwScraper(SyncStockScraper):
             company_info = self.scrape_company_description()
             
             capitalization = self.scrape_company_capitalization(company)
-            pe_ratio = 10
-            print(pe_ratio, capitalization)
-            #print(f"Company: {company}, Name: {company_name}, CEO {company_ceo} Sector: {company_sector}, Shares: {company_shares} City: {company_city}, Country: {company_country}, Info {company_info}")
+            industry, creation_date = company_classifcation(company_name=company_name, company_ticker=company, company_description=company_info)
             try:
                 conn = mysql.connector.connect(
                     host=os.getenv("DB_HOST"),
@@ -270,22 +270,21 @@ class GpwScraper(SyncStockScraper):
                 
                 insert_query = """
                     INSERT INTO Company
-                    (Identifier, CompanyName, CEO, Industry, Info, NrOfShares, Country, City, Capitalization, PERatio, CreationDate, DestructionDate)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    (Identifier, CompanyName, CEO, Industry, Info, NrOfShares, Country, City, Capitalization, CreationDate, DestructionDate)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """
 
                 data_tuple = (
                     company,
                     company_name,
                     company_ceo,
-                    "test",
+                    industry,
                     company_info,
                     company_shares,
                     company_country,
                     company_city,
                     capitalization,
-                    pe_ratio,
-                    '2025-06-15',
+                    creation_date,
                     None
                 )
 

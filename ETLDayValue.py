@@ -160,7 +160,7 @@ try:
             exchanenge_ID,
             company_ID,
             company_info[i][1],
-            company_info[i][2]))
+            None))
         conn.commit()
         print("Data added")
 

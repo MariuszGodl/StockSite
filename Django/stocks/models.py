@@ -20,6 +20,7 @@ class Company(models.Model):
     nrofsheres = models.IntegerField(db_column="NrOfShares") 
     country = models.CharField(max_length=100)
     city = models.CharField(max_length=100)
+    capitalization =  models.IntegerField(db_column="Capitalization") 
     creationdate = models.DateField()
     destructiondate = models.DateField(null=True, blank=True)
 
