@@ -2,6 +2,7 @@ from SyncScraper import SyncStockScraper
 from Other.imports import *
 from Other.constants import *
 from industry_clasification import company_classifcation
+from RemovePolishchars import strip_polish_chars
 
 load_dotenv()
 
@@ -190,6 +191,7 @@ class GpwScraper(SyncStockScraper):
         pass
 
     def scrape_basic_info_bankier(self, box_name, searched_info):
+
         box = self.driver.find_element(By.ID, box_name)
         # Inside that container, find the <td> with text 'Sektor:'
         label = box.find_element(By.XPATH, f'.//td[contains(text(),"{searched_info}:")]')
@@ -198,6 +200,7 @@ class GpwScraper(SyncStockScraper):
         return searched.upper()
 
     def scrape_company_description(self):
+
         # Find the container with id 'boxDesc'
         box_desc = self.driver.find_element(By.ID, "boxDesc")
         # Inside that container, find the <p> tag with the description text
@@ -205,13 +208,13 @@ class GpwScraper(SyncStockScraper):
         return description
     
 
+
     def scrape_company_capitalization(self, company, cookie_accept=False):
 
         url = self.config['url_company_capitalization'].format(company=company)
         self.driver.get(url)
-        wait = WebDriverWait(self.driver, self.config['wait_time'])
-        self.accepting_cookies(cookie_accept, wait)
-        
+        wait = WebDriverWait(self.driver, 5)#self.config['wait_time'])
+        #self.accepting_cookies(cookie_accept, wait) 
         box_desc = self.driver.find_element(By.ID, "boxProfil")
         capitalization_str = box_desc.find_element(
             By.XPATH, ".//td[normalize-space(text())='Kapitalizacja:']/following-sibling::td[1]"
@@ -231,12 +234,20 @@ class GpwScraper(SyncStockScraper):
         self.driver = webdriver.Chrome(service=self.service, options=self.options)
 
         cookie_accept = True
-        companies = ['06MAGNA']#self.get_companies(1)
+        from temp import get_company_brutal
+        companies = self.get_companies(1)
+        print(f"\033[93m{len(companies)}\033[0m")
         for company in companies:
             site = self.config['url_company_info'].format(company=company)
+            #add here if 404 continue
             self.driver.get(site)
-            wait = WebDriverWait(self.driver, self.config['wait_time'])
+            # check if page is 404
+            time.sleep(3)
+            if "#404" in self.driver.current_url:
+                print(f"\033[31mSkipping {company}, redirected to 404.\033[0m")
+                continue
 
+            wait = WebDriverWait(self.driver, self.config['wait_time'])
             self.accepting_cookies(cookie_accept, wait)
 
             cookie_accept = False
@@ -255,6 +266,49 @@ class GpwScraper(SyncStockScraper):
             
             capitalization = self.scrape_company_capitalization(company)
             industry, creation_date = company_classifcation(company_name=company_name, company_ticker=company, company_description=company_info)
+            
+            company_name = strip_polish_chars(company_name)
+            company_sector = strip_polish_chars(company_sector)
+            company_ceo = strip_polish_chars(company_ceo)
+            company_city = strip_polish_chars(company_city)
+            company_country = strip_polish_chars(company_country)
+            company_info = strip_polish_chars(company_info)
+
+# -- Company Table
+# CREATE TABLE Company (
+#     ID INT AUTO_INCREMENT PRIMARY KEY,
+#     Identifier VARCHAR(10) NOT NULL CHECK (Identifier REGEXP '^[A-Za-z0-9 ]+$'), 
+#     CompanyName VARCHAR(100) NOT NULL CHECK (CompanyName REGEXP '^[A-Za-z0-9ĄąĆćĘęŁłŃńÓóŚśŹźŻż &-.,;:]+$'),
+#     CEO VARCHAR(100) NOT NULL CHECK (CEO REGEXP '^[A-Za-z0-9ĄąĆćĘęŁłŃńÓóŚśŹźŻż &-.,;:]+$'),
+#     Industry VARCHAR(100) NOT NULL CHECK (Industry REGEXP '^[A-Za-zĄąĆćĘęŁłŃńÓóŚśŹźŻż &-.,;:]+$'),
+#     Info VARCHAR(5000) NOT NULL,
+#     NrOfShares INT NOT NULL CHECK (NrOfShares > 0),
+#     Country VARCHAR(100) NOT NULL CHECK (Country REGEXP '^[A-Za-zĄąĆćĘęŁłŃńÓóŚśŹźŻż &-.,;:]+$'),
+#     City VARCHAR(100) NOT NULL CHECK (City REGEXP '^[A-Za-zĄąĆćĘęŁłŃńÓóŚśŹźŻż &-.,;:]+$'),
+#     Capitalization INT NOT NULL CHECK (Capitalization > 0),
+#     CreationDate DATE NOT NULL,
+#     DestructionDate DATE,
+#     UNIQUE(Identifier)
+# );
+
+
+            print(
+                "\n".join(
+                    f"{name} ({type(value)}): {value}"
+                    for name, value in [
+                        ("company", company),
+                        ("company_name", company_name),
+                        ("company_ceo", company_ceo),
+                        ("industry", industry),
+                        ("company_info", company_info),
+                        ("company_shares", company_shares),
+                        ("company_country", company_country),
+                        ("company_city", company_city),
+                        ("capitalization", capitalization),
+                        ("creation_date", creation_date),
+                    ]
+                )
+            )
             try:
                 conn = mysql.connector.connect(
                     host=os.getenv("DB_HOST"),
@@ -300,7 +354,7 @@ class GpwScraper(SyncStockScraper):
                 if conn.is_connected():
                     cursor.close()
                     conn.close()
-                    print("MySQL connection closed")
+                    print(f"\033[31mMySQL connection closed\033[0m")
             #
             time.sleep(self.config['wait_between_requests'])
         self.driver.quit()
