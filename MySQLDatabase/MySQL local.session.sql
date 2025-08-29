@@ -1,6 +1,14 @@
 DESCRIBE Company;
 
- 
+SELECT * FROM StockExchange
+
+SELECT * FROM DayValue
+
+SELECT COUNT(ID) FROM DayValue
+
+TRUNCATE TABLE DayValue;
+
+
 
 ALTER TABLE Company 
 MODIFY Capitalization BIGINT NOT NULL CHECK (Capitalization > 0);
@@ -37,13 +45,7 @@ ADD CONSTRAINT chk_identifier
 CHECK (Identifier REGEXP '^[A-Za-z0-9 .]+$');
 
 
-SHOW VARIABLES LIKE 'secure_file_priv';
 
-SELECT *
-INTO OUTFILE '/var/lib/mysql-files/company_export.csv'
-FIELDS TERMINATED BY ',' 
-ENCLOSED BY '"'
-LINES TERMINATED BY '\n'
-FROM Company;
 
-secure-file-priv=""
+ALTER TABLE DayValue
+MODIFY COLUMN Turnover BIGINT;

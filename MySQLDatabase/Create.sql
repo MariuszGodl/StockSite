@@ -124,7 +124,7 @@ CREATE TABLE DayValue (
     `MAX` DECIMAL(10,2) NOT NULL,
     Volume INT NOT NULL,
     Trades INT NOT NULL,
-    Turnover DECIMAL(10,2) NOT NULL,
+    Turnover BIGINT NOT NULL,
 
     FOREIGN KEY (CompanyID) REFERENCES Company(ID) ON DELETE CASCADE,
     UNIQUE (CompanyID, `Date`)
