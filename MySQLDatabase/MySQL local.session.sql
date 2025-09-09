@@ -2,6 +2,8 @@ DESCRIBE Company;
 
 SELECT * FROM StockExchange
 
+SELECT * FROM Company
+
 SELECT * FROM DayValue
 
 SELECT COUNT(ID) FROM DayValue

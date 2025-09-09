@@ -21,15 +21,9 @@ from stocks.views import company_detail, contact, about_me
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-     path("company/", company_detail, name="company_detail"),
+    path("company/", company_detail, name="company_detail"),
     path("company/<str:identifier>/", company_detail, name="company_detail"),
+    path("company/<str:identifier>/<str:value_date>/", company_detail, name="company_detail"),
     path("contact/", contact, name="contact"),
     path("aboutme/", about_me, name="about_me"),
-
-
-    re_path(
-        r'^company/(?P<identifier>\w+)/(?P<value_date>\d{4}-\d{2}-\d{2})/$',
-        company_detail,
-        name="company_detail_with_date"
-    ),
 ]
