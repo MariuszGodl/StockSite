@@ -67,3 +67,32 @@ nav a.active {
   color:var(--accent);
 }
 
+.suggestions {
+  position: absolute;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  margin-top: 4px;
+  width: 240px;
+  max-height: 200px;
+  overflow-y: auto;
+  display: none;
+  z-index: 100;
+}
+
+.suggestions div {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.suggestions div:hover {
+  background: var(--accent-weak);
+}
+
+.search {
+  display:flex;
+  gap:8px;
+  align-items:center;
+  position: relative; /* important for dropdown positioning */
+}
+

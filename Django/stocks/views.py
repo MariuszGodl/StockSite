@@ -1,11 +1,11 @@
 from django.shortcuts import render, get_object_or_404
 from .models import Company, DayValue
 from datetime import date, timedelta, datetime
-import random
+from django.db.models import Q
+from django.http import JsonResponse
 
 
 def get_random_companies(n_of_companies):
-    #get the number of Company objects, and randomly chose n of them
     return list(Company.objects.order_by('?')[:n_of_companies])
 
 def get_day_values(day_values, value_date, company):
@@ -48,7 +48,21 @@ def get_day_values(day_values, value_date, company):
 
     return day_value, ratio, ratio_numeric
 
-def company_detail(request, identifier='06MAGNA', value_date=None):
+def company_detail(request, identifier='MBANK', value_date=None):
+    
+    query = request.GET.get("q")
+    if query:
+        company = Company.objects.filter(
+            Q(companyname__icontains=query) | Q(identifier__icontains=query)
+        ).first()  # get first match
+        if not company:
+            return render(request, "stocks/company_detail.html", {
+                "error": f'No company found for "{query}"'
+            })
+        identifier = company.identifier
+    else:
+        company = get_object_or_404(Company, identifier=identifier)
+
     company = get_object_or_404(Company, identifier=identifier)
 
     # All historical prices for chart
@@ -60,8 +74,7 @@ def company_detail(request, identifier='06MAGNA', value_date=None):
     
     day_value, ratio, ratio_numeric = get_day_values(day_values, value_date, company)
     promote_companies = get_random_companies(3)
-    for i in range(len(promote_companies)):
-        print(promote_companies[i - 1].identifier)
+
 
     capitalization = f"{company.capitalization:,} PLN".replace(',', ' ')
     context = {
@@ -92,3 +105,19 @@ def about_me(request):
     }
     return render(request, "stocks/about_me.html", context)
 
+
+
+def company_suggestions(request):
+    query = request.GET.get("q", "")
+    results = []
+
+    if query:
+        companies = Company.objects.filter(
+            Q(companyname__icontains=query) | Q(identifier__icontains=query)
+        )[:10]  # limit to 10 suggestions
+        results = [
+            {"name": c.companyname, "identifier": c.identifier}
+            for c in companies
+        ]
+
+    return JsonResponse(results, safe=False)

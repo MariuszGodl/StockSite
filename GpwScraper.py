@@ -3,6 +3,7 @@ from Other.imports import *
 from Other.constants import *
 from industry_clasification import company_classifcation
 from RemovePolishchars import strip_polish_chars
+from ETLDayValue import etl_day_value
 
 load_dotenv()
 
@@ -82,12 +83,11 @@ class GpwScraper(SyncStockScraper):
 
             # Wait until the file is downloaded
             self.wait_until_file_downloaded(file_path, self.error_file_path, timeout=TIME_TO_DOWNLOAD)
+            etl_day_value(file_name, True)
 
             return True
 
         return False  # File already exists, no need to download again
-
-
 
 
     def get_companies(self, mode):
@@ -146,6 +146,7 @@ class GpwScraper(SyncStockScraper):
             return clean_list
         pass
 
+
     def get_yesterday_prices(self):
         """
         Fetches today's prices for the companies listed on the GPW.
@@ -190,6 +191,7 @@ class GpwScraper(SyncStockScraper):
         self.driver.quit()
         pass
 
+
     def scrape_basic_info_bankier(self, box_name, searched_info):
 
         box = self.driver.find_element(By.ID, box_name)
@@ -199,6 +201,7 @@ class GpwScraper(SyncStockScraper):
         searched = label.find_element(By.XPATH, "following-sibling::td").text
         return searched.upper()
 
+    
     def scrape_company_description(self):
 
         # Find the container with id 'boxDesc'
@@ -207,7 +210,6 @@ class GpwScraper(SyncStockScraper):
         description = box_desc.find_element(By.TAG_NAME, "p").text
         return description
     
-
 
     def scrape_company_capitalization(self, company, cookie_accept=False):
 
@@ -359,3 +361,4 @@ class GpwScraper(SyncStockScraper):
             time.sleep(self.config['wait_between_requests'])
         self.driver.quit()
         pass
+
