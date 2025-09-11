@@ -221,38 +221,8 @@
     Mariusz Godlewski
   </footer>
     
-    <script>
-      const path = window.location.pathname;
-
-      let currentPage = '';
-      if (path === '/' || path.endsWith('/company/')) {
-        currentPage = 'home';
-      } else if (path.includes('about') || path.endsWith('/about_me/')) {
-        currentPage = 'aboutme';
-      } else if (path.includes('contact') || path.endsWith('/contact/')) {
-        currentPage = 'contact';
-      }
-      
-      // Highlight matching nav link
-      document.querySelectorAll('.nav-link').forEach(link => {
-        if (link.dataset.page === currentPage) {
-          link.classList.add('active');
-        }
-      });
-
-      // Auth modal logic
-      document.getElementById('loginBtn').addEventListener('click', ()=>openAuth('login'));
-      document.getElementById('signupBtn').addEventListener('click', ()=>openAuth('signup'));
-      document.getElementById('closeAuth').addEventListener('click', closeAuth);
-      document.getElementById('switchToSignup').addEventListener('click', ()=>openAuth('signup'));
-
-      function openAuth(mode){
-          document.getElementById('authModal').classList.add('active');
-          document.getElementById('authTitle').textContent = mode === 'login' ? 'Log In' : 'Sign Up';
-          document.getElementById('authSubmit').textContent = mode === 'login' ? 'Log In' : 'Create account';
-      }
-      function closeAuth(){ document.getElementById('authModal').classList.remove('active'); }
-    </script>
+  <script src="{% static 'catalog/highlighting.js' %}"></script>
+  <script src="{% static 'catalog/logging.js' %}"></script>
 
 </body>
 </html>

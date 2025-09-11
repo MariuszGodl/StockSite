@@ -1,0 +1,74 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Stock Dashboard — About me</title>
+  <link rel="stylesheet" href="{% static 'catalog/styles.css' %}">
+</head>
+<body>
+  <!-- Header / Navigation -->
+  <header class="header" role="banner">
+    <div class="header-inner">
+      <div class="brand">
+        <div aria-hidden>📈</div>
+        <div>
+          <div>StockView <span class="muted" style="font-weight:400;font-size:13px"></span></div>
+        </div>
+          <nav aria-label="Primary">
+            <a href="{% url 'company_detail' %}" class="nav-link" data-page="home">Home</a>
+            <a href="{% url 'about_me' %}" class="nav-link" data-page="aboutme">About me</a>
+            <a href="{% url 'contact' %}" class="nav-link" data-page="contact">Contact</a>
+          </nav>
+      </div>
+
+      <div style="display:flex;gap:12px;align-items:center">
+        <form class="search" role="search" onsubmit="return false">
+          <input type="search" placeholder="Search company or ticker" aria-label="Search" />
+          <button class="btn btn-primary" type="submit">Search</button>
+        </form>
+
+        <div class="auth-controls">
+          <button class="btn" id="loginBtn">Log In</button>
+          <button class="btn btn-primary" id="signupBtn">Sign Up</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+  <!-- Main content -->
+  <main class="container">
+    {% block content %}
+    {% endblock %}
+  </main>
+
+
+    <!-- Auth modal (same as index.html) -->
+  <div class="auth-modal" id="authModal" role="dialog" aria-modal="true">
+    <div class="auth-card">
+      <button id="closeAuth" style="float:right;border:0;background:transparent">✕</button>
+      <h3 id="authTitle">Log In</h3>
+      <form onsubmit="return false">
+        <label class="muted">Email or username</label>
+        <input type="text" id="authUser" required />
+        <label class="muted">Password</label>
+        <input type="password" id="authPass" required />
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <button class="btn btn-primary" id="authSubmit">Log In</button>
+          <button class="btn" id="switchToSignup">Sign Up</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <footer>
+    Prototype
+  </footer>
+
+  <script src="{% static 'catalog/highlighting.js' %}"></script>
+  <script src="{% static 'catalog/logging.js' %}"></script>
+  
+</body>
+</html>
