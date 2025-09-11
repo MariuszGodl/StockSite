@@ -24,10 +24,8 @@
       </div>
 
       <div style="display:flex;gap:12px;align-items:center">
-        <form class="search" role="search" onsubmit="return false">
-          <input type="search" placeholder="Search company or ticker" aria-label="Search" />
-          <button class="btn btn-primary" type="submit">Search</button>
-        </form>
+
+        {% include "search_bar.html" %}
 
         <div class="auth-controls">
           <button class="btn" id="loginBtn">Log In</button>

@@ -67,32 +67,49 @@ nav a.active {
   color:var(--accent);
 }
 
+.search {
+  position: relative;   /* container for absolute dropdown */
+  width: 240px;         /* match input */
+}
+
 .suggestions {
-  position: absolute;
+  position: fixed;       /* fixed relative to viewport */
+  top: 0;                /* will be set by JS */
+  left: 0;               /* will be set by JS */
+  width: 240px;          /* will be set by JS */
   background: white;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
-  margin-top: 4px;
-  width: 240px;
   max-height: 200px;
   overflow-y: auto;
   display: none;
-  z-index: 100;
+  z-index: 9999;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
+
+
+
+.header-inner > div {
+  position: relative; /* ensure flex children don’t break absolute positioning */
+}
+
+
+.search input {
+  width: 100%;                  /* ensure input fills the search container */
+  box-sizing: border-box;
+}
+.suggestions {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);  /* optional for visibility */
+}
+
 
 .suggestions div {
   padding: 8px 12px;
   cursor: pointer;
-}
+}  
 
 .suggestions div:hover {
   background: var(--accent-weak);
-}
+}  
 
-.search {
-  display:flex;
-  gap:8px;
-  align-items:center;
-  position: relative; /* important for dropdown positioning */
-}
 

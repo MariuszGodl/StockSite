@@ -29,3 +29,34 @@
   </ul>
 </section>
 {% endblock %}
+
+
+    <div class="card">
+      <h1 style="margin-top:0">Contact Us</h1>
+      <p class="muted">We’d love to hear from you. Fill out the form below or reach us through our details.</p>
+
+      <form style="display:grid;gap:12px;margin-top:20px" onsubmit="return false">
+        <div>
+          <label class="muted">Your Name</label>
+          <input type="text" style="width:100%;padding:10px;border-radius:8px;border:1px solid #e5e7eb" required />
+        </div>
+        <div>
+          <label class="muted">Your Email</label>
+          <input type="email" style="width:100%;padding:10px;border-radius:8px;border:1px solid #e5e7eb" required />
+        </div>
+        <div>
+          <label class="muted">Message</label>
+          <textarea style="width:100%;padding:10px;border-radius:8px;border:1px solid #e5e7eb;min-height:120px" required></textarea>
+        </div>
+        <div>
+          <button class="btn btn-primary" type="submit">Send Message</button>
+        </div>
+      </form>
+
+      <div style="margin-top:30px">
+        <h1>Contact Details</h1>
+        <p>Email: <a href="mailto:support@stockview.com">support@stockview.com</a></p>
+        <p>Phone: +1 (555) 123-4567</p>
+        <p>Address: 123 Market Street, Finance City, NY</p>
+      </div>
+    </div>

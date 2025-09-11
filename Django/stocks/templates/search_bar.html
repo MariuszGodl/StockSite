@@ -1,0 +1,76 @@
+<form class="search" role="search" onsubmit="return false">
+  <input type="search" id="searchInput" placeholder="Search company or ticker" aria-label="Search" autocomplete="off" />
+  <button class="btn btn-primary" type="submit">Search</button>
+</form>
+<div class="suggestions" id="suggestionsBox"></div> <!-- outside the form -->
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const input = document.getElementById("searchInput");
+  const suggestionsBox = document.getElementById("suggestionsBox");
+
+  function updateDropdownPosition() {
+    const rect = input.getBoundingClientRect();
+    suggestionsBox.style.top = (rect.bottom ) + 'px'; // 100px offset
+    suggestionsBox.style.left = rect.left + 'px';
+    suggestionsBox.style.width = rect.width + 'px';
+  }
+
+  input.addEventListener("input", function() {
+    const query = this.value.trim();
+    if (query.length < 2) { 
+      suggestionsBox.style.display = "none";
+      return;
+    }
+
+    fetch(`/company-suggestions/?q=${encodeURIComponent(query)}`)
+      .then(response => response.json())
+      .then(data => {
+        suggestionsBox.innerHTML = "";
+
+        if (data.length === 0) {
+          suggestionsBox.style.display = "none";
+          return;
+        }
+
+        data.forEach(item => {
+          const div = document.createElement("div");
+          div.textContent = `${item.name} (${item.identifier})`;
+          div.addEventListener("click", () => {
+            input.value = item.identifier;
+            suggestionsBox.style.display = "none";
+            window.location.href = `/company/${encodeURIComponent(item.identifier)}/`;
+          });
+          suggestionsBox.appendChild(div);
+        });
+
+        updateDropdownPosition();
+        suggestionsBox.style.display = "block";
+      });
+  });
+
+  document.addEventListener("click", function(e) {
+    if (!e.target.closest(".search")) {
+      suggestionsBox.style.display = "none";
+    }
+  });
+
+  window.addEventListener('resize', updateDropdownPosition);
+
+  document.querySelector(".search").addEventListener("submit", function(e) {
+    e.preventDefault();
+    const value = input.value.trim();
+    if (!value) return;
+
+    fetch(`/company-suggestions/?q=${encodeURIComponent(value)}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.length > 0) {
+          window.location.href = `/company/${encodeURIComponent(data[0].identifier)}/`;
+        } else {
+          window.location.href = `/company/${encodeURIComponent(value)}/`;
+        }
+      });
+  });
+});
+</script>

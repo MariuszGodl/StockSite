@@ -236,7 +236,6 @@ class GpwScraper(SyncStockScraper):
         self.driver = webdriver.Chrome(service=self.service, options=self.options)
 
         cookie_accept = True
-        from temp import get_company_brutal
         companies = self.get_companies(1)
         print(f"\033[93m{len(companies)}\033[0m")
         for company in companies:
