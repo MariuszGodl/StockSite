@@ -1,0 +1,87 @@
+
+<div class="chart-header">
+    <div>
+        <h1 style="margin:0;font-size:18px">{{ Company.companyname }} <small class="muted">{{ Company.identifier }}</small></h1>
+        <div class="muted" style="font-size:13px">{{ Company.industry }} • {{ Company.ceo }}</div>
+    </div>
+
+    <div style="text-align:right">
+
+        <div style="font-size:20px;font-weight:700">{{ DayValue.date }} </div>
+        
+        <div class="muted" style="color: {% if NrRatio < 0 %}red{% else %}green{% endif %};">
+            Change: {{ Ratio }}
+        </div>
+    </div>
+</div>
+<!-- Chart placeholder -->
+<div class="chart-canvas">
+    <canvas id="stockChart"></canvas>
+
+</div>
+
+<!-- Load Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
+
+<script>
+const ctx = document.getElementById('stockChart').getContext('2d');
+const stockChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+    labels: {{ chart_labels|safe }},
+    datasets: [{
+        label: 'Closing Price',
+        data: {{ chart_data|safe }},
+        borderColor: 'rgba(75, 192, 192, 1)',
+        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+        borderWidth: 2,
+        pointRadius: 0,
+        fill: true,
+        tension: 0.2
+    }]
+    },
+    options: {
+    maintainAspectRatio: false,
+    responsive: true,
+    plugins: {
+        legend: { display: true },
+        tooltip: { mode: 'index', intersect: false },
+        zoom: {
+        pan: {
+            enabled: true,
+            mode: 'x',   // allow horizontal pan
+        },
+        zoom: {
+            wheel: {
+            enabled: true, // zoom with mouse wheel
+            },
+            drag: {
+            enabled: true, // zoom by highlighting
+            backgroundColor: 'rgba(0,0,0,0.1)', // area highlight
+            },
+            mode: 'x',  // zoom only on x-axis
+        }
+        }
+    },
+    interaction: {
+        mode: 'nearest',
+        axis: 'x',
+        intersect: false
+    },
+    scales: {
+        x: {
+        ticks: { maxTicksLimit: 10 }
+        },
+        y: {
+        beginAtZero: false
+        }
+    }
+    }
+});
+
+// Add a button to reset zoom
+function resetZoom() {
+    stockChart.resetZoom();
+}
+</script>

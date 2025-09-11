@@ -1,45 +1,9 @@
-{% load static %}
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Contact — StockView</title>
-  <link rel="stylesheet" href="{% static 'catalog/styles.css' %}">
+{% extends "base.html" %}
 
-</head>
-<body>
-  <!-- Header -->
-  <header class="header" role="banner">
-    <div class="header-inner">
-      <div class="brand">
-        <div aria-hidden>📈</div>
-        <div>
-          <div>StockView <span class="muted" style="font-weight:400;font-size:13px"></span></div>
-        </div>
-          <nav aria-label="Primary">
-            <a href="{% url 'company_detail' %}" class="nav-link" data-page="home">Home</a>
-            <a href="{% url 'about_me' %}" class="nav-link" data-page="aboutme">About me</a>
-            <a href="{% url 'contact' %}" class="nav-link" data-page="contact">Contact</a>
-          </nav>
-      </div>
+{% block title %}Contact— Stock Dashboard{% endblock %}
 
-      <div style="display:flex;gap:12px;align-items:center">
-        <form class="search" role="search" onsubmit="return false">
-          <input type="search" placeholder="Search company or ticker" aria-label="Search" />
-          <button class="btn btn-primary" type="submit">Search</button>
-        </form>
+{% block content %}
 
-        <div class="auth-controls">
-          <button class="btn" id="loginBtn">Log In</button>
-          <button class="btn btn-primary" id="signupBtn">Sign Up</button>
-        </div>
-      </div>
-    </div>
-  </header>
-
-  <!-- Main content -->
-  <main class="container">
     <div class="card">
       <h1 style="margin-top:0">Contact Us</h1>
       <p class="muted">We’d love to hear from you. Fill out the form below or reach us through our details.</p>
@@ -69,61 +33,5 @@
         <p>Address: 123 Market Street, Finance City, NY</p>
       </div>
     </div>
-  </main>
+{% endblock %}
 
-  <!-- Auth Modal -->
-  <div class="auth-modal" id="authModal" role="dialog" aria-modal="true">
-    <div class="auth-card">
-      <button id="closeAuth" style="float:right;border:0;background:transparent">✕</button>
-      <h3 id="authTitle">Log In</h3>
-      <form onsubmit="return false">
-        <label class="muted">Email or username</label>
-        <input type="text" id="authUser" required />
-        <label class="muted">Password</label>
-        <input type="password" id="authPass" required />
-        <div style="display:flex;gap:8px;margin-top:12px">
-          <button class="btn btn-primary" id="authSubmit">Log In</button>
-          <button class="btn" id="switchToSignup">Sign Up</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- Footer -->
-  <footer>
-    Prototype
-  </footer>
-
-  <!-- Scripts -->
-  <script>
-        const path = window.location.pathname;
-
-    let currentPage = '';
-    if (path === '/' || path.endsWith('/index.html')) {
-      currentPage = 'home';
-    } else if (path.includes('about') || path.endsWith('/about_me/')) {
-      currentPage = 'aboutme';
-    } else if (path.includes('contact') || path.endsWith('/contact/')) {
-      currentPage = 'contact';
-    }
-
-    // Highlight matching nav link
-    document.querySelectorAll('.nav-link').forEach(link => {
-      if (link.dataset.page === currentPage) {
-        link.classList.add('active');
-      }
-    });
-    document.getElementById('loginBtn').addEventListener('click', ()=>openAuth('login'));
-    document.getElementById('signupBtn').addEventListener('click', ()=>openAuth('signup'));
-    document.getElementById('closeAuth').addEventListener('click', closeAuth);
-    document.getElementById('switchToSignup').addEventListener('click', ()=>openAuth('signup'));
-
-    function openAuth(mode){
-      document.getElementById('authModal').classList.add('active');
-      document.getElementById('authTitle').textContent = mode === 'login' ? 'Log In' : 'Sign Up';
-      document.getElementById('authSubmit').textContent = mode === 'login' ? 'Log In' : 'Create account';
-    }
-    function closeAuth(){ document.getElementById('authModal').classList.remove('active'); }
-  </script>
-</body>
-</html>

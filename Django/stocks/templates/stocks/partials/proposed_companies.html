@@ -1,0 +1,13 @@
+        <div class="card companies-list"`>
+          <h4 style="margin-top:0">Other Companies</h4>
+            {% for company in PromoteCompanies %}
+              <button type="button">
+                <a href="{% url 'company_detail' identifier=company.identifier %}" 
+                  style="color: inherit; text-decoration: none;">
+                  {{ company.identifier }}
+                </a>
+                <span>★</span>
+              </button>
+            {% endfor %}
+
+        </div>
