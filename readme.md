@@ -44,19 +44,3 @@ It combines **Python ETL pipelines**, **MySQL database**, **Selenium web scrapin
 
 ---
 
-## 📂 Project Structure  
-
-.
-├── Django/ # Django web app
-│ ├── sideproject/ # Django project files
-│ └── stocks/ # Main Django app (views, models, templates)
-├── Scraper/ # Scraping & ETL pipeline
-│ ├── GPW_insetion.py # DB insertion logic
-│ ├── GpwScraper.py # Main scraper
-│ ├── ETLDayValue.py # ETL for daily stock values
-│ └── Other/ # constants, imports, chromedriver, helpers
-├── MySQLDatabase/ # SQL schema & setup
-│ └── Create.sql
-├── docker-compose.yml # Planned Docker deployment
-├── req.txt # Python dependencies
-└── myenv/ # Virtual environment
